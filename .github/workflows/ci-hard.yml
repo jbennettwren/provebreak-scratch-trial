@@ -1,0 +1,222 @@
+name: ci-hard
+on:
+  pull_request:
+    branches: [main]
+    types: [opened, synchronize, reopened]
+permissions: {}
+jobs:
+  a_culprit:
+    if: github.head_ref == 'pr/h-culprit'
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    permissions: {contents: read}
+    steps:
+      - uses: actions/checkout@v4
+        with: {fetch-depth: 0}
+      - uses: actions/setup-python@v5
+        with: {python-version: '3.11'}
+      - run: pip install -q pytest
+      - id: tests
+        shell: bash
+        run: |
+          set +e
+          python -m pytest -q -p no:cacheprovider --junitxml=/tmp/junit.xml; rc=$?
+          ids=$(python - <<'PY'
+          import xml.etree.ElementTree as ET
+          r=ET.parse('/tmp/junit.xml').getroot(); out=[]
+          for tc in r.iter('testcase'):
+              if tc.find('failure') is not None or tc.find('error') is not None:
+                  f=tc.get('file') or tc.get('classname').replace('.','/')+'.py'
+                  out.append(f"{f}::{tc.get('name')}")
+          print(','.join(out))
+          PY
+          )
+          echo "failing=$ids" >> "$GITHUB_OUTPUT"; echo "rc=$rc" >> "$GITHUB_OUTPUT"; echo "pytest rc=$rc failing=$ids"
+      - id: pb
+        if: steps.tests.outputs.rc != '0'
+        uses: ./.github/actions/provebreak-culprit-hard
+        with:
+          failing_tests: ${{ steps.tests.outputs.failing }}
+      - if: always()
+        env: {S: "${{ steps.pb.outputs.status }}", V: "${{ steps.pb.outputs.verdict }}", C: "${{ steps.pb.outputs.culprit_sha }}", O: "${{ steps.pb.outcome }}"}
+        run: 'echo "TRIAL_RESULT step_outcome=[$O] status=[$S] verdict=[$V] culprit=[$C]"'
+  c_disabled:
+    if: github.head_ref == 'pr/h-culprit'
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    permissions: {contents: read}
+    steps:
+      - uses: actions/checkout@v4
+        with: {fetch-depth: 0}
+      - uses: actions/setup-python@v5
+        with: {python-version: '3.11'}
+      - run: pip install -q pytest
+      - id: tests
+        shell: bash
+        run: |
+          set +e
+          python -m pytest -q -p no:cacheprovider --junitxml=/tmp/junit.xml; rc=$?
+          ids=$(python - <<'PY'
+          import xml.etree.ElementTree as ET
+          r=ET.parse('/tmp/junit.xml').getroot(); out=[]
+          for tc in r.iter('testcase'):
+              if tc.find('failure') is not None or tc.find('error') is not None:
+                  f=tc.get('file') or tc.get('classname').replace('.','/')+'.py'
+                  out.append(f"{f}::{tc.get('name')}")
+          print(','.join(out))
+          PY
+          )
+          echo "failing=$ids" >> "$GITHUB_OUTPUT"; echo "rc=$rc" >> "$GITHUB_OUTPUT"; echo "pytest rc=$rc failing=$ids"
+      - id: pb
+        if: steps.tests.outputs.rc != '0'
+        uses: ./.github/actions/provebreak-culprit-hard
+        with:
+          failing_tests: ${{ steps.tests.outputs.failing }}
+          enabled: false
+      - if: always()
+        env: {S: "${{ steps.pb.outputs.status }}", V: "${{ steps.pb.outputs.verdict }}", C: "${{ steps.pb.outputs.culprit_sha }}", O: "${{ steps.pb.outcome }}"}
+        run: 'echo "TRIAL_RESULT step_outcome=[$O] status=[$S] verdict=[$V] culprit=[$C]"'
+  b_notsure:
+    if: github.head_ref == 'pr/h-notsure'
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    permissions: {contents: read}
+    steps:
+      - uses: actions/checkout@v4
+        with: {fetch-depth: 0}
+      - uses: actions/setup-python@v5
+        with: {python-version: '3.11'}
+      - run: pip install -q pytest
+      - id: tests
+        shell: bash
+        run: |
+          set +e
+          python -m pytest -q -p no:cacheprovider --junitxml=/tmp/junit.xml; rc=$?
+          ids=$(python - <<'PY'
+          import xml.etree.ElementTree as ET
+          r=ET.parse('/tmp/junit.xml').getroot(); out=[]
+          for tc in r.iter('testcase'):
+              if tc.find('failure') is not None or tc.find('error') is not None:
+                  f=tc.get('file') or tc.get('classname').replace('.','/')+'.py'
+                  out.append(f"{f}::{tc.get('name')}")
+          print(','.join(out))
+          PY
+          )
+          echo "failing=$ids" >> "$GITHUB_OUTPUT"; echo "rc=$rc" >> "$GITHUB_OUTPUT"; echo "pytest rc=$rc failing=$ids"
+      - id: pb
+        if: steps.tests.outputs.rc != '0'
+        uses: ./.github/actions/provebreak-culprit-hard
+        with:
+          failing_tests: ${{ steps.tests.outputs.failing }}
+      - if: always()
+        env: {S: "${{ steps.pb.outputs.status }}", V: "${{ steps.pb.outputs.verdict }}", C: "${{ steps.pb.outputs.culprit_sha }}", O: "${{ steps.pb.outcome }}"}
+        run: 'echo "TRIAL_RESULT step_outcome=[$O] status=[$S] verdict=[$V] culprit=[$C]"'
+  d1_install_fail:
+    if: github.head_ref == 'pr/h-culprit'
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    permissions: {contents: read}
+    steps:
+      - uses: actions/checkout@v4
+        with: {fetch-depth: 0}
+      - uses: actions/setup-python@v5
+        with: {python-version: '3.11'}
+      - run: pip install -q pytest
+      - id: tests
+        shell: bash
+        run: |
+          set +e
+          python -m pytest -q -p no:cacheprovider --junitxml=/tmp/junit.xml; rc=$?
+          ids=$(python - <<'PY'
+          import xml.etree.ElementTree as ET
+          r=ET.parse('/tmp/junit.xml').getroot(); out=[]
+          for tc in r.iter('testcase'):
+              if tc.find('failure') is not None or tc.find('error') is not None:
+                  f=tc.get('file') or tc.get('classname').replace('.','/')+'.py'
+                  out.append(f"{f}::{tc.get('name')}")
+          print(','.join(out))
+          PY
+          )
+          echo "failing=$ids" >> "$GITHUB_OUTPUT"; echo "rc=$rc" >> "$GITHUB_OUTPUT"; echo "pytest rc=$rc failing=$ids"
+      - id: pb
+        if: steps.tests.outputs.rc != '0'
+        env: {PIP_NO_INDEX: '1', PIP_FIND_LINKS: /nonexistent, PIP_INDEX_URL: 'http://127.0.0.1:9/simple'}
+        uses: ./.github/actions/provebreak-culprit-hard
+        with:
+          failing_tests: ${{ steps.tests.outputs.failing }}
+      - if: always()
+        env: {S: "${{ steps.pb.outputs.status }}", V: "${{ steps.pb.outputs.verdict }}", C: "${{ steps.pb.outputs.culprit_sha }}", O: "${{ steps.pb.outcome }}"}
+        run: 'echo "TRIAL_RESULT step_outcome=[$O] status=[$S] verdict=[$V] culprit=[$C]"'
+  d2_install_fail_foe:
+    if: github.head_ref == 'pr/h-culprit'
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    permissions: {contents: read}
+    steps:
+      - uses: actions/checkout@v4
+        with: {fetch-depth: 0}
+      - uses: actions/setup-python@v5
+        with: {python-version: '3.11'}
+      - run: pip install -q pytest
+      - id: tests
+        shell: bash
+        run: |
+          set +e
+          python -m pytest -q -p no:cacheprovider --junitxml=/tmp/junit.xml; rc=$?
+          ids=$(python - <<'PY'
+          import xml.etree.ElementTree as ET
+          r=ET.parse('/tmp/junit.xml').getroot(); out=[]
+          for tc in r.iter('testcase'):
+              if tc.find('failure') is not None or tc.find('error') is not None:
+                  f=tc.get('file') or tc.get('classname').replace('.','/')+'.py'
+                  out.append(f"{f}::{tc.get('name')}")
+          print(','.join(out))
+          PY
+          )
+          echo "failing=$ids" >> "$GITHUB_OUTPUT"; echo "rc=$rc" >> "$GITHUB_OUTPUT"; echo "pytest rc=$rc failing=$ids"
+      - id: pb
+        if: steps.tests.outputs.rc != '0'
+        env: {PIP_NO_INDEX: '1', PIP_FIND_LINKS: /nonexistent, PIP_INDEX_URL: 'http://127.0.0.1:9/simple'}
+        uses: ./.github/actions/provebreak-culprit-hard
+        with:
+          failing_tests: ${{ steps.tests.outputs.failing }}
+          fail-on-error: true
+      - if: always()
+        env: {S: "${{ steps.pb.outputs.status }}", V: "${{ steps.pb.outputs.verdict }}", C: "${{ steps.pb.outputs.culprit_sha }}", O: "${{ steps.pb.outcome }}"}
+        run: 'echo "TRIAL_RESULT step_outcome=[$O] status=[$S] verdict=[$V] culprit=[$C]"'
+  e_timeout:
+    if: github.head_ref == 'pr/h-slow'
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    permissions: {contents: read}
+    steps:
+      - uses: actions/checkout@v4
+        with: {fetch-depth: 0}
+      - uses: actions/setup-python@v5
+        with: {python-version: '3.11'}
+      - run: pip install -q pytest
+      - id: tests
+        shell: bash
+        run: |
+          set +e
+          python -m pytest -q -p no:cacheprovider --junitxml=/tmp/junit.xml; rc=$?
+          ids=$(python - <<'PY'
+          import xml.etree.ElementTree as ET
+          r=ET.parse('/tmp/junit.xml').getroot(); out=[]
+          for tc in r.iter('testcase'):
+              if tc.find('failure') is not None or tc.find('error') is not None:
+                  f=tc.get('file') or tc.get('classname').replace('.','/')+'.py'
+                  out.append(f"{f}::{tc.get('name')}")
+          print(','.join(out))
+          PY
+          )
+          echo "failing=$ids" >> "$GITHUB_OUTPUT"; echo "rc=$rc" >> "$GITHUB_OUTPUT"; echo "pytest rc=$rc failing=$ids"
+      - id: pb
+        if: steps.tests.outputs.rc != '0'
+        uses: ./.github/actions/provebreak-culprit-hard
+        with:
+          failing_tests: ${{ steps.tests.outputs.failing }}
+          timeout-minutes: 1
+      - if: always()
+        env: {S: "${{ steps.pb.outputs.status }}", V: "${{ steps.pb.outputs.verdict }}", C: "${{ steps.pb.outputs.culprit_sha }}", O: "${{ steps.pb.outcome }}"}
+        run: 'echo "TRIAL_RESULT step_outcome=[$O] status=[$S] verdict=[$V] culprit=[$C]"'
