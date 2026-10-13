@@ -1,0 +1,37 @@
+name: ci-jest
+on:
+  push:
+    branches: ['trial/jest-*']
+permissions:
+  contents: read
+jobs:
+  test:
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    steps:
+      - uses: actions/checkout@v4
+        with: {fetch-depth: 0}
+      - uses: actions/setup-node@v4
+        with: {node-version: '20'}
+      - uses: actions/setup-python@v5
+        with: {python-version: '3.11'}
+      - run: npm ci --no-audit --no-fund
+      - id: tests
+        shell: bash
+        run: |
+          set +e
+          npx jest --ci --json --outputFile="$RUNNER_TEMP/report.json"; rc=$?
+          echo "rc=$rc" >> "$GITHUB_OUTPUT"; echo "jest rc=$rc"
+      - id: pb
+        if: steps.tests.outputs.rc != '0'
+        uses: ./.github/actions/provebreak-culprit-js
+        with:
+          runner: jest
+          report: ${{ runner.temp }}/report.json
+          budget_sec: '180'
+          step_budget: '16'
+          max_commits: '200'
+      - if: always()
+        run: 'echo "pb_status=${{ steps.pb.outputs.status }} culprit=${{ steps.pb.outputs.culprit_sha }}"'
+      - if: steps.tests.outputs.rc != '0'
+        run: exit 1

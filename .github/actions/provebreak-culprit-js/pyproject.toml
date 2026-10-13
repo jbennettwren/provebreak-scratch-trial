@@ -1,0 +1,11 @@
+[build-system]
+requires = ["setuptools>=61"]
+build-backend = "setuptools.build_meta"
+[project]
+name = "provebreak-culprit"
+version = "1.0.0rc1"
+requires-python = ">=3.9"
+[project.scripts]
+provebreak-culprit = "provebreak_culprit.cli:main"
+[tool.setuptools.packages.find]
+where = ["src"]
