@@ -1,0 +1,41 @@
+name: "ProveBreak culprit (prototype)"
+description: "On a red push, re-runs the failing test across before..after and names the commit that broke it, or abstains. Observe-only."
+# Use in a job with `permissions: contents: read` and NO secrets: historical commits run under a scrubbed env.
+# Requires actions/checkout with fetch-depth: 0. Not published; prototype only.
+inputs:
+  failing_tests: {description: "Comma-separated pytest node ids that failed", required: true}
+  good_sha: {description: "Last known-good sha (default github.event.before)", required: false, default: ""}
+  bad_sha: {description: "Red sha (default github.sha)", required: false, default: ""}
+  budget_sec: {description: "Engine wall-clock budget", required: false, default: "180"}
+  step_budget: {description: "Max commit evaluations", required: false, default: "16"}
+  max_commits: {description: "Abstain if range is larger", required: false, default: "200"}
+  enabled: {description: "Kill switch ('false' or env PROVEBREAK_DISABLED=1 skips)", required: false, default: "true"}
+  timeout-minutes: {description: "Outer hard limit per step", required: false, default: "10"}
+  fail-on-error: {description: "Fail the step on internal error (default false = fail-soft)", required: false, default: "false"}
+outputs:
+  status: {description: "proven | not_proven | inconclusive_* | outside_cause | budget_exhausted | error", value: "${{ steps.find.outputs.status }}"}
+  culprit_sha: {description: "Set only when status=proven", value: "${{ steps.find.outputs.culprit_sha }}"}
+runs:
+  using: "composite"
+  steps:
+    - id: gate
+      shell: bash
+      env: {PB_ENABLED: "${{ inputs.enabled }}", PB_TESTS: "${{ inputs.failing_tests }}", PB_GOOD: "${{ inputs.good_sha || github.event.before }}"}
+      run: '"$GITHUB_ACTION_PATH/action_steps.sh" gate'
+    - if: steps.gate.outputs.run == 'true'
+      shell: bash
+      env: {PB_ACTION_PATH: "${{ github.action_path }}", PB_TIMEOUT_MINUTES: "${{ inputs.timeout-minutes }}", PB_FAIL_ON_ERROR: "${{ inputs.fail-on-error }}"}
+      run: '"$GITHUB_ACTION_PATH/action_steps.sh" install'
+    - id: find
+      if: steps.gate.outputs.run == 'true'
+      shell: bash
+      env:
+        PB_GOOD: "${{ inputs.good_sha || github.event.before }}"
+        PB_BAD: "${{ inputs.bad_sha || github.sha }}"
+        PB_TESTS: "${{ inputs.failing_tests }}"
+        PB_BUDGET_SEC: "${{ inputs.budget_sec }}"
+        PB_STEP_BUDGET: "${{ inputs.step_budget }}"
+        PB_MAX_COMMITS: "${{ inputs.max_commits }}"
+        PB_TIMEOUT_MINUTES: "${{ inputs.timeout-minutes }}"
+        PB_FAIL_ON_ERROR: "${{ inputs.fail-on-error }}"
+      run: '"$GITHUB_ACTION_PATH/action_steps.sh" find'

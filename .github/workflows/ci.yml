@@ -1,0 +1,45 @@
+name: ci
+on:
+  push:
+    branches: [main, 'trial/**']
+permissions:
+  contents: read
+jobs:
+  test:
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    steps:
+      - uses: actions/checkout@v4
+        with: {fetch-depth: 0}
+      - uses: actions/setup-python@v5
+        with: {python-version: '3.11'}
+      - run: pip install -q pytest
+      - id: tests
+        shell: bash
+        run: |
+          set +e
+          python -m pytest -q -p no:cacheprovider --junitxml=/tmp/junit.xml; rc=$?
+          ids=$(python - <<'P'
+          import xml.etree.ElementTree as ET
+          r=ET.parse('/tmp/junit.xml').getroot(); out=[]
+          for tc in r.iter('testcase'):
+              if tc.find('failure') is not None or tc.find('error') is not None:
+                  f=tc.get('file') or tc.get('classname').replace('.','/')+'.py'
+                  out.append(f"{f}::{tc.get('name')}")
+          print(','.join(out))
+          P
+          )
+          echo "failing=$ids" >> "$GITHUB_OUTPUT"; echo "rc=$rc" >> "$GITHUB_OUTPUT"
+          echo "pytest rc=$rc failing=$ids"
+      - id: pb
+        if: steps.tests.outputs.rc != '0'
+        uses: ./.github/actions/provebreak-culprit
+        with:
+          failing_tests: ${{ steps.tests.outputs.failing }}
+          budget_sec: '180'
+          step_budget: '16'
+          max_commits: '200'
+      - if: always()
+        run: 'echo "pb_status=${{ steps.pb.outputs.status }} culprit=${{ steps.pb.outputs.culprit_sha }}"'
+      - if: steps.tests.outputs.rc != '0'
+        run: exit 1
