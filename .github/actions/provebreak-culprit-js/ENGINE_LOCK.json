@@ -1,0 +1,114 @@
+{
+  "commit": "c6d82312b6447caa5648bb04a2a3dbcd35dbb93d",
+  "entry": "bisect.py",
+  "files": {
+    "__init__.py": {
+      "upstream_blob_sha": "aafe6f77f979fd2b67160a35fa6d167b21adbb60",
+      "upstream_sha256": "45825926ab105087c3e289a1296c40a8261e55337835c2c67a6c8e371d1582f3",
+      "vendored_sha256": "45825926ab105087c3e289a1296c40a8261e55337835c2c67a6c8e371d1582f3"
+    },
+    "bisect.py": {
+      "upstream_blob_sha": "36d3da3765b6bda6e0954d320d4572dc7bf1f65a",
+      "upstream_sha256": "8214cf2a30741d01d0657dead03fa37a780179351126af936cfc1155aeb686cb",
+      "vendored_sha256": "10d6a6cecf86f581dc6c7fcd9b9d611ff3ee52d8942d2e36fdf1f65f3325e05d"
+    },
+    "browser_spec.py": {
+      "upstream_blob_sha": "eaa465a760ca7284074b667e483d3c0f0a146f84",
+      "upstream_sha256": "1286707c43d8847740d7babf9a89828871850c6f29f3a135749d5109a9fc3818",
+      "vendored_sha256": "4234837f9ba6d5202805dc04e92afdfae2af7805cc45c16efdafec26406d3d44"
+    },
+    "cargo.py": {
+      "upstream_blob_sha": "e290c5e26d7c1582f44f647bff2654612fa604c9",
+      "upstream_sha256": "34fa5734a051ac5fd7a8450936d0a4055594edc41d0508a93ce86311aad1630d",
+      "vendored_sha256": "7c33c67ece16aa1fc2b35aa8e6340e43e9d9fc6313f8c923da59a776ebcd4823"
+    },
+    "cpp.py": {
+      "upstream_blob_sha": "4969e84b26f581de514626127d663d8b005ef4ac",
+      "upstream_sha256": "03ce0c30cdf839ea0a1c2eea3f91aaa58e0f68878ddd0e75d4171701af3824f2",
+      "vendored_sha256": "7034fd0a4bb9c94b7f6e63402e086b58e86d3f8364f9cdb43ad7f3627407e4e6"
+    },
+    "flaky_tip.py": {
+      "upstream_blob_sha": "d4e92555ed0f74568a857eca85e3b5230015fb2f",
+      "upstream_sha256": "16f7c1d243fb5eac79818e4df1727b2d681ba46a9c6c1c3ce1f1be6f3d0035dc",
+      "vendored_sha256": "16f7c1d243fb5eac79818e4df1727b2d681ba46a9c6c1c3ce1f1be6f3d0035dc"
+    },
+    "jsmonorepo.py": {
+      "upstream_blob_sha": "bed1a78f1b97754b365f4a1dbac5f4b3e87ea2ec",
+      "upstream_sha256": "15cb691133b39c06b506a9e754e42e741f92d7db4527e2f610c9e7cf900d25c4",
+      "vendored_sha256": "15cb691133b39c06b506a9e754e42e741f92d7db4527e2f610c9e7cf900d25c4"
+    },
+    "jvm.py": {
+      "upstream_blob_sha": "03a290784b263dbc323d973873b2d510b7d26081",
+      "upstream_sha256": "e84a95d63c4480e5aedb053ed6273e084b507df0c466ba6789da179ebf2f0681",
+      "vendored_sha256": "bb6fff2f927699609d2bece26b4d3ce3c4d56b440a1ed78799ce6547fad9eea0"
+    },
+    "logs.py": {
+      "upstream_blob_sha": "91a8ff48dc987bfe69422585399afad9d30f9bc9",
+      "upstream_sha256": "da98102064778f42cb193f90a5d008170ef92e9fb1c89429590950e63f369ebd",
+      "vendored_sha256": "36a720a3c2ba2911ba891ae65310076c737c531ac130de5daf77a7a850e9cfd0"
+    },
+    "machine_preflight.py": {
+      "upstream_blob_sha": "728e0224df111c5e8ba8cbc1791e34ae18c987ee",
+      "upstream_sha256": "314f371ae9f80556e7d7aafd24ad09f1149df432a86df5079df81ce17a89788b",
+      "vendored_sha256": "de75e7ab1d06eb7a38d2c12f6587c72917d439e83070f70e827f2d0ec7b5cb39"
+    },
+    "phpunit.py": {
+      "upstream_blob_sha": "9dfa3f3330dde105bc1893f098819326445fb3de",
+      "upstream_sha256": "ce4f91ea3c76e1aa691f2f95d79de710da6a2334acc41d09505e13b5614626d5",
+      "vendored_sha256": "f583909615f8e3c6dcfa7e9be87304322977b055169222ef1f62db2ae3f63223"
+    },
+    "redact.py": {
+      "upstream_blob_sha": "2904b85a962d91f00ddd62bf2469fa48731f0f7a",
+      "upstream_sha256": "90d32fb523f56b3c09c86e790c4b568003612f3c03f42499f0c6540891b781f1",
+      "vendored_sha256": "90d32fb523f56b3c09c86e790c4b568003612f3c03f42499f0c6540891b781f1"
+    },
+    "reproduce.py": {
+      "upstream_blob_sha": "320a46e924a5baa01f86e9736d6db500c85ab9f9",
+      "upstream_sha256": "7332d985151e7211d76192e841dae0d60f0cf121df48595cad4a07e1764b78e5",
+      "vendored_sha256": "03a59a066bbabdeb40ae856a9e94c158990d447d1cb0fb1cdd87edb69ef8b667"
+    },
+    "ruby_test.py": {
+      "upstream_blob_sha": "6dfb50b14f7d59beb2a78ae3ac13e1d40b98f74e",
+      "upstream_sha256": "505e10ff4d64bbb48614411beecff6f35a4ef5ed7b4d886541e362823da50d39",
+      "vendored_sha256": "9d129ce785faa6e4a47139d63b8bcfe3bf5da855f6c0facb00d93adc88e8a590"
+    },
+    "runners.py": {
+      "upstream_blob_sha": "4262260c108c36389ba9a4347c0cc9c2caaef40e",
+      "upstream_sha256": "b9c5886cd951533cce72f88d0116179c1a9ce8257cf4f6ceb4553579d69a1ea6",
+      "vendored_sha256": "860d08f439ae832127bd7116a5576dacae470c202770a72d1406ec147605aeae"
+    },
+    "sanitize.py": {
+      "upstream_blob_sha": "fef1a11e9105ab15caa13296fe3666e0545fea5e",
+      "upstream_sha256": "1bf6d87443a511e58ff6a97193d5a0d752380998933ced7ba61c85c74b1f755f",
+      "vendored_sha256": "3d0a43a00faf6a33a1482abb2ae05856512ec12a0401d5f1cb24195394828fc7"
+    },
+    "summary_gate.py": {
+      "upstream_blob_sha": "7657f97b876f7f3d9f5dae6cebf18088be112847",
+      "upstream_sha256": "4b1075784bcd121226c62c889faee29a844686f90fbcb0f1c47ae75dd278a149",
+      "vendored_sha256": "79020e65cb92c3253a3d38d9121d27bb0191bea618af3f490a6f75ca668ea0ce"
+    },
+    "toolchain_pin.py": {
+      "upstream_blob_sha": "96543102c87f4b9ff38d96bce7078152ade75caf",
+      "upstream_sha256": "d3555f73e62c6b690184dd224ba142605e66b50cacaea47f160bcee6e3ae4625",
+      "vendored_sha256": "d3555f73e62c6b690184dd224ba142605e66b50cacaea47f160bcee6e3ae4625"
+    },
+    "upstream.py": {
+      "upstream_blob_sha": "27f62ec36574770d0e4e540dde6e21b34682024f",
+      "upstream_sha256": "0649af353cf7f6ec2a3e2ff3d43dbc2d1f24a35980d076fd10ea90c1669c9e7e",
+      "vendored_sha256": "1ba4289123b0578305d77de56f692ddb9b7f85c8658ea64f7dc786623149bfe4"
+    },
+    "urls.py": {
+      "upstream_blob_sha": "a3fa26c92d72b39088436c8370df81b27f0c2836",
+      "upstream_sha256": "f3f0416a95fde0daf8386c0ea8c82dc8eefa5b8cacb25c76f530e3b92212850d",
+      "vendored_sha256": "f3f0416a95fde0daf8386c0ea8c82dc8eefa5b8cacb25c76f530e3b92212850d"
+    },
+    "verdict.py": {
+      "upstream_blob_sha": "e289c757165de7c9e9ecc81186cc0e4b1e923932",
+      "upstream_sha256": "22a482d78e8d40903000d3282c925f50f77c0c05a30356d419f45fd518deb089",
+      "vendored_sha256": "270fdd55ebfd583d40e243e446d0051b3e459ffb0ab6c432af3f03c08b661860"
+    }
+  },
+  "source_repo": "jbennettwren/sentinel-lab",
+  "transform": "import-line rename sentinel_card -> provebreak_culprit._engine; otherwise byte-identical",
+  "upstream_path": ".github/actions/sentinel/src/sentinel_card"
+}
