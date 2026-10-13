@@ -2,4 +2,4 @@ def add(a, b):
     return a + b
 
 def mul(a, b):
-    return a * b + 1  # planted base break
+    return a * b
