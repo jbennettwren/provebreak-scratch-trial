@@ -1,2 +1,2 @@
-function add(a, b) { return a - b; } // planted base break
+function add(a, b) { return a + b; }
 module.exports = { add };
