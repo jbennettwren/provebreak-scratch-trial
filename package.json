@@ -1,2 +1,2 @@
-{ "name": "pb-trial-vitest", "version": "1.0.0", "private": true, "type": "module",
-  "scripts": { "test": "vitest run" }, "devDependencies": { "vitest": "2.1.9" } }
+{ "name": "pb-trial-jest", "version": "1.0.0", "private": true, 
+  "scripts": { "test": "jest" }, "devDependencies": { "jest": "29.7.0" } }
