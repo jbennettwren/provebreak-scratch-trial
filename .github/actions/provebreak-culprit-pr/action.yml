@@ -1,9 +1,8 @@
 name: "ProveBreak culprit"
-description: "pytest, vitest or jest: on a red push or pull request, re-runs failing tests; names a commit only when proven, else abstains."
+description: "pytest, vitest or jest. On a red push, re-runs the failing tests on commits in before..after (on pull_request: checks the base, then merge-base..PR head); names a commit only when proven, otherwise abstains."
 author: "ProveBreak"
 branding: {icon: "search", color: "gray-dark"}
 # v1.0.0 planned (NOT published). Writes to the Job Summary and step outputs only: no comments, pings, assignment or network calls by the Action.
-# Triggers: push (examples/provebreak-culprit.yml) or pull_request (examples/provebreak-culprit-pr.yml; never pull_request_target).
 # Caller job must: run its tests in the same job beforehand (pytest: the engine reuses that Python env; vitest/jest: node+npm on PATH, the engine runs npm ci per commit), use actions/checkout with fetch-depth: 0,
 # set `permissions: contents: read`, expose NO secrets (code from historical commits is executed), and not run on pull_request_target.
 # A composite action cannot set permissions or job timeouts itself; see examples/provebreak-culprit.yml.
@@ -21,7 +20,7 @@ inputs:
   timeout-minutes: {description: "Hard limit (minutes) per stage, enforced with timeout --kill-after", required: false, default: "10"}
   fail-on-error: {description: "Fail the step on internal error/timeout (default false = fail-soft: the Action's own step stays green; your test job can still be red from your tests)", required: false, default: "false"}
 outputs:
-  status: {description: "proven | introduced_failing_test | not_proven | inconclusive_flaky | inconclusive_build | inconclusive_git | inconclusive_env | outside_cause | base_already_red | budget_exhausted | error (empty if skipped). Only proven names a commit; a merge commit is never named in pull request mode.", value: "${{ steps.find.outputs.status }}"}
+  status: {description: "proven | introduced_failing_test | not_proven | inconclusive_flaky | inconclusive_build | inconclusive_git | inconclusive_env | outside_cause | base_already_red | budget_exhausted | error (empty if skipped). Only proven names a commit.", value: "${{ steps.find.outputs.status }}"}
   culprit_sha: {description: "Set only when status=proven", value: "${{ steps.find.outputs.culprit_sha }}"}
 runs:
   using: "composite"

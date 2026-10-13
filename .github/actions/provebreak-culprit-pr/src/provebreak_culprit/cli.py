@@ -121,7 +121,7 @@ def render(res: BisectResult, good: str, bad: str, base: str | None = None) -> s
     else:
         lines += _abstain_lines(res)
     if base is not None:
-        lines += ["", f"Pull request mode: base `{base[:12]}` was not red on the base check (green, or the test does not exist there); searched the PR's own commits (fork point..head)."]
+        lines += ["", f"Pull request mode: base `{base[:12]}` was green; searched merge-base..head (PR commits only)."]
     lines += ["", f"Range checked: `{good[:12]}..{bad[:12]}` · steps {res.steps_used} · {res.elapsed_sec:.1f}s"]
     return "\n".join(lines) + "\n"
 

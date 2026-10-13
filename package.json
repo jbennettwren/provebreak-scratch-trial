@@ -1,2 +1,0 @@
-{ "name": "pb-trial-vitest", "version": "1.0.0", "private": true, "type": "module",
-  "scripts": { "test": "vitest run" }, "devDependencies": { "vitest": "2.1.9" } }
