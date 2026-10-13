@@ -220,3 +220,44 @@ jobs:
       - if: always()
         env: {S: "${{ steps.pb.outputs.status }}", V: "${{ steps.pb.outputs.verdict }}", C: "${{ steps.pb.outputs.culprit_sha }}", O: "${{ steps.pb.outcome }}"}
         run: 'echo "TRIAL_RESULT step_outcome=[$O] status=[$S] verdict=[$V] culprit=[$C]"'
+  e2_timeout_slow_install:
+    if: github.head_ref == 'pr/h-slow'
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    permissions: {contents: read}
+    steps:
+      - uses: actions/checkout@v4
+        with: {fetch-depth: 0}
+      - uses: actions/setup-python@v5
+        with: {python-version: '3.11'}
+      - run: pip install -q pytest
+      - id: tests
+        shell: bash
+        run: |
+          set +e
+          python -m pytest -q -p no:cacheprovider --junitxml=/tmp/junit.xml; rc=$?
+          ids=$(python - <<'PY'
+          import xml.etree.ElementTree as ET
+          r=ET.parse('/tmp/junit.xml').getroot(); out=[]
+          for tc in r.iter('testcase'):
+              if tc.find('failure') is not None or tc.find('error') is not None:
+                  f=tc.get('file') or tc.get('classname').replace('.','/')+'.py'
+                  out.append(f"{f}::{tc.get('name')}")
+          print(','.join(out))
+          PY
+          )
+          echo "failing=$ids" >> "$GITHUB_OUTPUT"; echo "rc=$rc" >> "$GITHUB_OUTPUT"; echo "pytest rc=$rc failing=$ids"
+      - name: local index that accepts connections and never answers (makes pip install hang)
+        run: |
+          nohup python3 -c "import socket;s=socket.socket();s.bind(('127.0.0.1',8765));s.listen(64);c=[s.accept() for _ in range(1000)]" >/dev/null 2>&1 &
+          sleep 1
+      - id: pb
+        if: steps.tests.outputs.rc != '0'
+        env: {PIP_INDEX_URL: 'http://127.0.0.1:8765/simple', PIP_TIMEOUT: '600', PIP_RETRIES: '0'}
+        uses: ./.github/actions/provebreak-culprit-hard
+        with:
+          failing_tests: ${{ steps.tests.outputs.failing }}
+          timeout-minutes: 1
+      - if: always()
+        env: {S: "${{ steps.pb.outputs.status }}", V: "${{ steps.pb.outputs.verdict }}", C: "${{ steps.pb.outputs.culprit_sha }}", O: "${{ steps.pb.outcome }}"}
+        run: 'echo "TRIAL_RESULT step_outcome=[$O] status=[$S] verdict=[$V] culprit=[$C]"'
