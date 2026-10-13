@@ -1,0 +1,56 @@
+name: ci-pr
+on:
+  pull_request:
+    branches: [main]
+    types: [opened, synchronize, reopened]
+permissions:
+  contents: read
+jobs:
+  test:
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    steps:
+      - uses: actions/checkout@v4
+        with: {fetch-depth: 0}
+      - name: event shas (trial probe)
+        shell: bash
+        env:
+          EV_ACTION: ${{ github.event.action }}
+          EV_BASE: ${{ github.event.pull_request.base.sha }}
+          EV_HEAD: ${{ github.event.pull_request.head.sha }}
+          EV_BEFORE: ${{ github.event.before }}
+          EV_SHA: ${{ github.sha }}
+        run: |
+          echo "action=$EV_ACTION base=$EV_BASE head=$EV_HEAD before=$EV_BEFORE github.sha=$EV_SHA"
+          echo "shallow=$(git rev-parse --is-shallow-repository)"
+          for s in "$EV_BASE" "$EV_HEAD"; do git cat-file -e "$s^{commit}" && echo "present $s" || echo "MISSING $s"; done
+          echo "merge-base=$(git merge-base "$EV_BASE" "$EV_HEAD")"
+      - uses: actions/setup-python@v5
+        with: {python-version: '3.11'}
+      - run: pip install -q pytest
+      - id: tests
+        shell: bash
+        run: |
+          set +e
+          python -m pytest -q -p no:cacheprovider --junitxml=/tmp/junit.xml; rc=$?
+          ids=$(python - <<'P'
+          import xml.etree.ElementTree as ET
+          r=ET.parse('/tmp/junit.xml').getroot(); out=[]
+          for tc in r.iter('testcase'):
+              if tc.find('failure') is not None or tc.find('error') is not None:
+                  f=tc.get('file') or tc.get('classname').replace('.','/')+'.py'
+                  out.append(f"{f}::{tc.get('name')}")
+          print(','.join(out))
+          P
+          )
+          echo "failing=$ids" >> "$GITHUB_OUTPUT"; echo "rc=$rc" >> "$GITHUB_OUTPUT"
+          echo "pytest rc=$rc failing=$ids"
+      - id: pb
+        if: steps.tests.outputs.rc != '0'
+        uses: ./.github/actions/provebreak-culprit-pr
+        with:
+          failing_tests: ${{ steps.tests.outputs.failing }}
+      - if: always()
+        run: 'echo "pb_status=${{ steps.pb.outputs.status }} culprit=${{ steps.pb.outputs.culprit_sha }}"'
+      - if: steps.tests.outputs.rc != '0'
+        run: exit 1

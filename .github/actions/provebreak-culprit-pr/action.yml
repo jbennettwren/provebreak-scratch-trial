@@ -1,0 +1,52 @@
+name: "ProveBreak culprit"
+description: "pytest, vitest or jest. On a red push, re-runs the failing tests on commits in before..after (on pull_request: checks the base, then merge-base..PR head); names a commit only when proven, otherwise abstains."
+author: "ProveBreak"
+branding: {icon: "search", color: "gray-dark"}
+# v1.0.0 planned (NOT published). Writes to the Job Summary and step outputs only: no comments, pings, assignment or network calls by the Action.
+# Caller job must: run its tests in the same job beforehand (pytest: the engine reuses that Python env; vitest/jest: node+npm on PATH, the engine runs npm ci per commit), use actions/checkout with fetch-depth: 0,
+# set `permissions: contents: read`, expose NO secrets (code from historical commits is executed), and not run on pull_request_target.
+# A composite action cannot set permissions or job timeouts itself; see examples/provebreak-culprit.yml.
+inputs:
+  failing_tests: {description: "Comma-separated failing ids (pytest node ids, or JS 'file > describe > test'). Optional when report is set", required: false, default: ""}
+  runner: {description: "pytest (default) | vitest | jest | auto (detect from package.json / config; abstains if both vitest and jest are found)", required: false, default: "pytest"}
+  report: {description: "Path to the vitest/jest JSON reporter file or vitest JUnit XML; failing ids are read from it", required: false, default: ""}
+  good_sha: {description: "Last known-good sha (default: github.event.pull_request.base.sha on pull_request, else github.event.before). Setting good_sha or bad_sha turns pull_request mode off", required: false, default: ""}
+  bad_sha: {description: "Red sha (default: github.event.pull_request.head.sha on pull_request, not the merge commit; else github.sha)", required: false, default: ""}
+  budget_sec: {description: "Engine wall-clock budget", required: false, default: "180"}
+  step_budget: {description: "Max commit evaluations", required: false, default: "16"}
+  confirm_reruns: {description: "Confirmation reruns before a commit is named (3-10, default 3 = the blind beta's preregistered setting; higher is stricter but not what the beta measured). Invalid values abstain", required: false, default: "3"}
+  max_commits: {description: "Abstain if range is larger", required: false, default: "200"}
+  enabled: {description: "Kill switch: any value other than 'true', or env PROVEBREAK_DISABLED=1|true|yes in any case (e.g. a repo variable), skips the Action", required: false, default: "true"}
+  timeout-minutes: {description: "Hard limit (minutes) per stage, enforced with timeout --kill-after", required: false, default: "10"}
+  fail-on-error: {description: "Fail the step on internal error/timeout (default false = fail-soft: the Action's own step stays green; your test job can still be red from your tests)", required: false, default: "false"}
+outputs:
+  status: {description: "proven | introduced_failing_test | not_proven | inconclusive_flaky | inconclusive_build | inconclusive_git | inconclusive_env | outside_cause | base_already_red | budget_exhausted | error (empty if skipped). Only proven names a commit.", value: "${{ steps.find.outputs.status }}"}
+  culprit_sha: {description: "Set only when status=proven", value: "${{ steps.find.outputs.culprit_sha }}"}
+runs:
+  using: "composite"
+  steps:
+    - id: gate
+      shell: bash
+      env: {PB_ENABLED: "${{ inputs.enabled }}", PB_TESTS: "${{ inputs.failing_tests }}", PB_REPORT: "${{ inputs.report }}", PB_GOOD: "${{ inputs.good_sha || github.event.pull_request.base.sha || github.event.before }}", PB_CONFIRM_RERUNS: "${{ inputs.confirm_reruns }}"}
+      run: '"$GITHUB_ACTION_PATH/action_steps.sh" gate'
+    - if: steps.gate.outputs.run == 'true'
+      shell: bash
+      env: {PB_ACTION_PATH: "${{ github.action_path }}", PB_TIMEOUT_MINUTES: "${{ inputs.timeout-minutes }}", PB_FAIL_ON_ERROR: "${{ inputs.fail-on-error }}"}
+      run: '"$GITHUB_ACTION_PATH/action_steps.sh" install'
+    - id: find
+      if: steps.gate.outputs.run == 'true'
+      shell: bash
+      env:
+        PB_GOOD: "${{ inputs.good_sha || github.event.pull_request.base.sha || github.event.before }}"
+        PB_BAD: "${{ inputs.bad_sha || github.event.pull_request.head.sha || github.sha }}"
+        PB_PR_MODE: "${{ github.event_name == 'pull_request' && inputs.good_sha == '' && inputs.bad_sha == '' }}"
+        PB_TESTS: "${{ inputs.failing_tests }}"
+        PB_RUNNER: "${{ inputs.runner }}"
+        PB_REPORT: "${{ inputs.report }}"
+        PB_BUDGET_SEC: "${{ inputs.budget_sec }}"
+        PB_STEP_BUDGET: "${{ inputs.step_budget }}"
+        PB_MAX_COMMITS: "${{ inputs.max_commits }}"
+        PB_CONFIRM_RERUNS: "${{ inputs.confirm_reruns }}"
+        PB_TIMEOUT_MINUTES: "${{ inputs.timeout-minutes }}"
+        PB_FAIL_ON_ERROR: "${{ inputs.fail-on-error }}"
+      run: '"$GITHUB_ACTION_PATH/action_steps.sh" find'

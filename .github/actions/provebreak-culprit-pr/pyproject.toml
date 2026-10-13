@@ -1,0 +1,12 @@
+[build-system]
+requires = ["setuptools>=61"]
+build-backend = "setuptools.build_meta"
+[project]
+name = "provebreak-culprit"
+version = "1.0.0"
+license = { file = "LICENSE" }  # DRAFT license text; final choice is Joe's (see LICENSE_DECISION.md)
+requires-python = ">=3.9"
+[project.scripts]
+provebreak-culprit = "provebreak_culprit.cli:main"
+[tool.setuptools.packages.find]
+where = ["src"]
